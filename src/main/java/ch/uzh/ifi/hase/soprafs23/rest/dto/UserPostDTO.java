@@ -1,24 +1,29 @@
 package ch.uzh.ifi.hase.soprafs23.rest.dto;
 
+
+import javax.validation.constraints.NotBlank;
+
 public class UserPostDTO {
 
-  private String name;
+    @NotBlank(message = "The username must not be empty.")
+    private String username;
 
-  private String username;
+    @NotBlank(message = "The password must not be empty.")
+    private String password;
 
-  public String getName() {
-    return name;
-  }
+    public String getUsername() {
+        return username;
+    }
 
-  public void setName(String name) {
-    this.name = name;
-  }
+    public void setUsername(String username) {
+        this.username = username;
+    }
 
-  public String getUsername() {
-    return username;
-  }
+    public String getPassword() {
+        return password;
+    }
 
-  public void setUsername(String username) {
-    this.username = username;
-  }
+    public void setPassword(String password) {
+        this.password = password;
+    }
 }
