@@ -1,9 +1,7 @@
 package ch.uzh.ifi.hase.soprafs23.controller;
 
 import ch.uzh.ifi.hase.soprafs23.entity.User;
-import ch.uzh.ifi.hase.soprafs23.rest.dto.UserGetDTO;
-import ch.uzh.ifi.hase.soprafs23.rest.dto.UserLoginGetDTO;
-import ch.uzh.ifi.hase.soprafs23.rest.dto.UserPostDTO;
+import ch.uzh.ifi.hase.soprafs23.rest.dto.*;
 import ch.uzh.ifi.hase.soprafs23.rest.mapper.DTOMapper;
 import ch.uzh.ifi.hase.soprafs23.service.UserService;
 import org.springframework.http.HttpStatus;
@@ -51,14 +49,25 @@ public class UserController {
     @PostMapping("/users")
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
-    public UserGetDTO createUser(@RequestBody @Valid UserPostDTO userPostDTO) {
+    public UserLoginGetDTO createUser(@RequestBody @Valid UserPostDTO userPostDTO) {
         // convert API user to internal representation
         User userInput = DTOMapper.INSTANCE.convertUserPostDTOtoEntity(userPostDTO);
 
         // create user
         User createdUser = userService.createUser(userInput);
         // convert internal representation of user back to API
-        return DTOMapper.INSTANCE.convertEntityToUserGetDTO(createdUser);
+        return DTOMapper.INSTANCE.convertEntityToUserLoginGetDTO(createdUser);
+    }
+
+    @PutMapping("/users")
+    @ResponseStatus(HttpStatus.CREATED)
+    @ResponseBody
+    public UserGetDTO updateUser(@RequestBody @Valid UserPutDTO userPutDTO) {
+        User userInput = DTOMapper.INSTANCE.convertUserPutDTOtoEntity(userPutDTO);
+
+        User updatedUser = userService.updateUser(userInput);
+
+        return DTOMapper.INSTANCE.convertEntityToUserGetDTO(updatedUser);
     }
 
     @PostMapping("/login")
@@ -70,6 +79,16 @@ public class UserController {
         User user = userService.login(userCredentials);
 
         return DTOMapper.INSTANCE.convertEntityToUserLoginGetDTO(user);
+    }
+
+    @PutMapping("/logout")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public UserGetDTO logout(@RequestBody UserLogoutPutDTO userLogoutPutDTO) {
+        User userInput = DTOMapper.INSTANCE.convertUserLogoutPutDTOtoEntity(userLogoutPutDTO);
+
+        User user = userService.logout(userInput);
+        return DTOMapper.INSTANCE.convertEntityToUserGetDTO(user);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

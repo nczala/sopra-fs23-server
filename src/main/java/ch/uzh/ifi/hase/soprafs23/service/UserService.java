@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -46,8 +47,9 @@ public class UserService {
     public User createUser(User newUser) {
         newUser.setToken(UUID.randomUUID().toString());
         newUser.setStatus(UserStatus.OFFLINE);
-        checkIfUserExists(newUser);
+        checkIfUsernameExists(newUser.getUsername());
         newUser.setPassword(passwordEncoder.encode(newUser.getPassword()));
+        newUser.setCreationDate(new Date());
         // saves the given entity but data is only persisted in the database once
         // flush() is called
         newUser = userRepository.save(newUser);
@@ -57,20 +59,11 @@ public class UserService {
         return newUser;
     }
 
-    /**
-     * This is a helper method that will check the uniqueness criteria of the
-     * username and the name
-     * defined in the User entity. The method will do nothing if the input is unique
-     * and throw an error otherwise.
-     *
-     * @param userToBeCreated
-     * @throws org.springframework.web.server.ResponseStatusException
-     * @see User
-     */
-    private void checkIfUserExists(User userToBeCreated) {
-        User userByUsername = userRepository.findByUsername(userToBeCreated.getUsername());
+    private void checkIfUsernameExists(String username) {
+        User userByUsername = userRepository.findByUsername(username);
 
-        String baseErrorMessage = "The %s provided %s not unique. Therefore, the user could not be created!";
+        String baseErrorMessage = "The %s provided %s not unique." +
+                "";
         if (userByUsername != null) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, String.format(baseErrorMessage, "username", "is"));
         }
@@ -82,11 +75,38 @@ public class UserService {
         if (!(userByUserName != null && isPasswordCorrect(userByUserName, loginUser.getPassword()))) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
         }
-
+        userByUserName.setStatus(UserStatus.ONLINE);
         return userByUserName;
     }
 
     private boolean isPasswordCorrect(User user, String password) {
         return passwordEncoder.matches(password, user.getPassword());
+    }
+
+    public User logout(User logoutUser) {
+        User userByToken = userRepository.findByToken(logoutUser.getToken());
+        if (userByToken == null){
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "No User for token exists.");
+        }
+        userByToken.setStatus(UserStatus.OFFLINE);
+
+        userByToken = userRepository.save(userByToken);
+        return userByToken;
+    }
+
+    public User updateUser(User userInput) {
+        User userById = userRepository.findById(userInput.getId()).get();
+        if (!authenticate(userById, userInput.getToken())) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not allowed to update user with id: " + userInput.getId());
+        }
+
+        checkIfUsernameExists(userInput.getUsername());
+
+        User updatedUser = userRepository.save(userInput);
+        return updatedUser;
+    }
+
+    private boolean authenticate(User user, String token) {
+        return user.getToken().equals(token);
     }
 }
