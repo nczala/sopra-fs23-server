@@ -1,10 +1,10 @@
 package ch.uzh.ifi.hase.soprafs23.entity;
 
 import ch.uzh.ifi.hase.soprafs23.constant.UserStatus;
-import org.springframework.data.annotation.CreatedDate;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.util.Date;
 
 /**
@@ -40,10 +40,10 @@ public class User implements Serializable {
     private UserStatus status;
 
     @Column(nullable = true)
-    private Date birthday;
+    private LocalDate birthday;
 
     @Column(nullable = false)
-    private Date creationDate;
+    private LocalDate creationDate;
 
     public Long getId() {
         return id;
@@ -85,19 +85,19 @@ public class User implements Serializable {
         this.status = status;
     }
 
-    public Date getBirthday() {
+    public LocalDate getBirthday() {
         return birthday;
     }
 
-    public void setBirthday(Date birthday) {
+    public void setBirthday(LocalDate birthday) {
         this.birthday = birthday;
     }
 
-    public Date getCreationDate() {
+    public LocalDate getCreationDate() {
         return creationDate;
     }
 
-    public void setCreationDate(Date creationDate) {
+    public void setCreationDate(LocalDate creationDate) {
         this.creationDate = creationDate;
     }
 }

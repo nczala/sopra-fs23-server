@@ -1,12 +1,13 @@
 package ch.uzh.ifi.hase.soprafs23.rest.dto;
 
 import javax.validation.constraints.NotBlank;
+import java.time.LocalDate;
 
 public class UserPutDTO {
     @NotBlank
     private Long id;
     private String username;
-    private String birthday;
+    private LocalDate birthday;
     @NotBlank
     private String token;
 
@@ -26,11 +27,11 @@ public class UserPutDTO {
         this.username = username;
     }
 
-    public String getBirthday() {
+    public LocalDate getBirthday() {
         return birthday;
     }
 
-    public void setBirthday(String birthday) {
+    public void setBirthday(LocalDate birthday) {
         this.birthday = birthday;
     }
 

@@ -62,7 +62,7 @@ public class UserController {
     @PutMapping("/users")
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
-    public UserGetDTO updateUser(@RequestBody @Valid UserPutDTO userPutDTO) {
+    public UserGetDTO updateUser(@RequestBody UserPutDTO userPutDTO) {
         User userInput = DTOMapper.INSTANCE.convertUserPutDTOtoEntity(userPutDTO);
 
         User updatedUser = userService.updateUser(userInput);

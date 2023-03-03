@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -46,10 +47,10 @@ public class UserService {
 
     public User createUser(User newUser) {
         newUser.setToken(UUID.randomUUID().toString());
-        newUser.setStatus(UserStatus.OFFLINE);
+        newUser.setStatus(UserStatus.ONLINE);
         checkIfUsernameExists(newUser.getUsername());
         newUser.setPassword(passwordEncoder.encode(newUser.getPassword()));
-        newUser.setCreationDate(new Date());
+        newUser.setCreationDate(LocalDate.now());
         // saves the given entity but data is only persisted in the database once
         // flush() is called
         newUser = userRepository.save(newUser);
@@ -62,8 +63,7 @@ public class UserService {
     private void checkIfUsernameExists(String username) {
         User userByUsername = userRepository.findByUsername(username);
 
-        String baseErrorMessage = "The %s provided %s not unique." +
-                "";
+        String baseErrorMessage = "The %s provided %s not unique.";
         if (userByUsername != null) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, String.format(baseErrorMessage, "username", "is"));
         }
@@ -71,6 +71,7 @@ public class UserService {
 
     public User login(User loginUser) {
         User userByUserName = userRepository.findByUsername(loginUser.getUsername());
+        System.out.println(loginUser.getUsername() + "  " + userByUserName.getUsername());
 
         if (!(userByUserName != null && isPasswordCorrect(userByUserName, loginUser.getPassword()))) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
@@ -96,17 +97,42 @@ public class UserService {
 
     public User updateUser(User userInput) {
         User userById = userRepository.findById(userInput.getId()).get();
+        String inputUsername = userInput.getUsername();
+        System.out.println(userInput.getBirthday());
+
         if (!authenticate(userById, userInput.getToken())) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not allowed to update user with id: " + userInput.getId());
         }
 
-        checkIfUsernameExists(userInput.getUsername());
+        if (inputUsername.equals(userById.getUsername())) {
+            System.out.println("Kept Name");
+        }
+        else if (inputUsername == null || inputUsername == "") {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "username can't be empty");
+        }
+        else {
+            checkIfUsernameExists(inputUsername);
+            userById.setUsername(inputUsername);
+        }
 
-        User updatedUser = userRepository.save(userInput);
+        if (userInput.getBirthday() != null) {
+            userById.setBirthday(userInput.getBirthday());
+            // throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "username can't be empty");
+        }
+        else {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "wrong date-format");
+        }
+
+        //checkforBirthdayFormat
+
+
+        User updatedUser = userRepository.save(userById);
         return updatedUser;
     }
 
     private boolean authenticate(User user, String token) {
         return user.getToken().equals(token);
     }
+
+
 }
