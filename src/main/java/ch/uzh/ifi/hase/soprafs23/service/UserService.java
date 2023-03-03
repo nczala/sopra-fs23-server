@@ -1,6 +1,7 @@
 package ch.uzh.ifi.hase.soprafs23.service;
 
 import ch.uzh.ifi.hase.soprafs23.constant.UserStatus;
+import ch.uzh.ifi.hase.soprafs23.entity.Session;
 import ch.uzh.ifi.hase.soprafs23.entity.User;
 import ch.uzh.ifi.hase.soprafs23.repository.UserRepository;
 import org.slf4j.Logger;
@@ -14,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -45,9 +45,14 @@ public class UserService {
         return this.userRepository.findAll();
     }
 
+    public User getUserById(long id) {
+        return this.userRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("No user found with id %d.", id)));
+    }
+
     public User createUser(User newUser) {
         newUser.setToken(UUID.randomUUID().toString());
-        newUser.setStatus(UserStatus.ONLINE);
+        newUser.setStatus(UserStatus.OFFLINE);
         checkIfUsernameExists(newUser.getUsername());
         newUser.setPassword(passwordEncoder.encode(newUser.getPassword()));
         newUser.setCreationDate(LocalDate.now());
@@ -69,70 +74,33 @@ public class UserService {
         }
     }
 
-    public User login(User loginUser) {
-        User userByUserName = userRepository.findByUsername(loginUser.getUsername());
-        System.out.println(loginUser.getUsername() + "  " + userByUserName.getUsername());
+    public User updateUser(User userInput, long id) {
+        User userById = userRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("No user exists with id %d", id)));
 
-        if (!(userByUserName != null && isPasswordCorrect(userByUserName, loginUser.getPassword()))) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
-        }
-        userByUserName.setStatus(UserStatus.ONLINE);
-        return userByUserName;
-    }
-
-    private boolean isPasswordCorrect(User user, String password) {
-        return passwordEncoder.matches(password, user.getPassword());
-    }
-
-    public User logout(User logoutUser) {
-        User userByToken = userRepository.findByToken(logoutUser.getToken());
-        if (userByToken == null){
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "No User for token exists.");
-        }
-        userByToken.setStatus(UserStatus.OFFLINE);
-
-        userByToken = userRepository.save(userByToken);
-        return userByToken;
-    }
-
-    public User updateUser(User userInput) {
-        User userById = userRepository.findById(userInput.getId()).get();
-        String inputUsername = userInput.getUsername();
-        System.out.println(userInput.getBirthday());
-
-        if (!authenticate(userById, userInput.getToken())) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not allowed to update user with id: " + userInput.getId());
+        if (!isNullOrBlank(userInput.getUsername()) && !userById.getUsername().equals(userInput.getUsername())) {
+            checkIfUsernameExists(userInput.getUsername());
+            userById.setUsername(userInput.getUsername());
         }
 
-        if (inputUsername.equals(userById.getUsername())) {
-            System.out.println("Kept Name");
-        }
-        else if (inputUsername == null || inputUsername == "") {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "username can't be empty");
-        }
-        else {
-            checkIfUsernameExists(inputUsername);
-            userById.setUsername(inputUsername);
-        }
-
-        if (userInput.getBirthday() != null) {
+        if (!(userInput.getBirthday() == null)) {
             userById.setBirthday(userInput.getBirthday());
-            // throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "username can't be empty");
-        }
-        else {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "wrong date-format");
         }
 
-        //checkforBirthdayFormat
-
-
-        User updatedUser = userRepository.save(userById);
-        return updatedUser;
+        return userRepository.save(userById);
     }
 
-    private boolean authenticate(User user, String token) {
-        return user.getToken().equals(token);
+    private boolean isNullOrBlank(String input) {
+        return input == null || input.equals("");
     }
 
+    public User changeStatus(long userid, UserStatus status) {
+        User user = userRepository
+                .findById(userid)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
+        user.setStatus(status);
+
+        return userRepository.save(user);
+    }
 }
