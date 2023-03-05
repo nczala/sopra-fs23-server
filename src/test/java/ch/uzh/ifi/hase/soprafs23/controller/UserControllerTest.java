@@ -231,10 +231,6 @@ public class UserControllerTest {
         user.setBirthday(date);
         user.setStatus(UserStatus.ONLINE);
 
-        UserPutDTO userPutDTO = new UserPutDTO();
-        userPutDTO.setUsername("testUsername");
-        userPutDTO.setBirthday(date);
-
         JSONObject obj = new JSONObject();
         obj.put("username", "testUsername");
         obj.put("birthday", date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
@@ -263,11 +259,6 @@ public class UserControllerTest {
         long userid = 1;
         String token = "testToken";
         LocalDate date = LocalDate.now();
-
-        UserPutDTO userPutDTO = new UserPutDTO();
-        userPutDTO.setUsername("testUsername");
-        userPutDTO.setBirthday(date);
-
 
         JSONObject obj = new JSONObject();
         obj.put("username", "testUsername");
