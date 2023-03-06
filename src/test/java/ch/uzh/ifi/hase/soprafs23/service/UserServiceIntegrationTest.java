@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -40,16 +41,17 @@ public class UserServiceIntegrationTest {
         assertNull(userRepository.findByUsername("testUsername"));
 
         User testUser = new User();
-        //testUser.setName("testName");
         testUser.setUsername("testUsername");
+        testUser.setPassword("hash");
+
 
         // when
         User createdUser = userService.createUser(testUser);
 
         // then
         assertEquals(testUser.getId(), createdUser.getId());
-        //assertEquals(testUser.getName(), createdUser.getName());
         assertEquals(testUser.getUsername(), createdUser.getUsername());
+        assertEquals(testUser.getPassword(), createdUser.getPassword());
         assertNotNull(createdUser.getToken());
         assertEquals(UserStatus.OFFLINE, createdUser.getStatus());
     }
@@ -59,7 +61,7 @@ public class UserServiceIntegrationTest {
         assertNull(userRepository.findByUsername("testUsername"));
 
         User testUser = new User();
-        //testUser.setName("testName");
+        testUser.setPassword("hash");
         testUser.setUsername("testUsername");
         User createdUser = userService.createUser(testUser);
 
@@ -67,7 +69,7 @@ public class UserServiceIntegrationTest {
         User testUser2 = new User();
 
         // change the name but forget about the username
-        //testUser2.setName("testName2");
+        testUser.setPassword("hash");
         testUser2.setUsername("testUsername");
 
         // check that an error is thrown

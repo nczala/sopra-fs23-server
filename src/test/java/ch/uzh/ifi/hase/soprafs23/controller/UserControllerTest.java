@@ -155,7 +155,7 @@ public class UserControllerTest {
         String token = "testToken";
 
         User user = new User();
-        user.setId(1L);
+        user.setId(userid);
         user.setUsername("testUsername");
         user.setStatus(UserStatus.ONLINE);
 
@@ -225,7 +225,7 @@ public class UserControllerTest {
         LocalDate date = LocalDate.now();
 
         User user = new User();
-        user.setId(1L);
+        user.setId(userid);
         user.setUsername("testUsername");
         user.setToken("testToken");
         user.setBirthday(date);
