@@ -1,6 +1,5 @@
 package ch.uzh.ifi.hase.soprafs23.rest.dto;
 
-import javax.validation.constraints.NotBlank;
 import java.time.LocalDate;
 
 public class UserPutDTO {

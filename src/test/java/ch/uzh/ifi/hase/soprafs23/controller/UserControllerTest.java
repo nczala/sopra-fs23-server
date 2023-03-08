@@ -3,7 +3,6 @@ package ch.uzh.ifi.hase.soprafs23.controller;
 import ch.uzh.ifi.hase.soprafs23.constant.UserStatus;
 import ch.uzh.ifi.hase.soprafs23.entity.User;
 import ch.uzh.ifi.hase.soprafs23.rest.dto.UserPostDTO;
-import ch.uzh.ifi.hase.soprafs23.rest.dto.UserPutDTO;
 import ch.uzh.ifi.hase.soprafs23.service.AuthService;
 import ch.uzh.ifi.hase.soprafs23.service.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -18,7 +17,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
@@ -62,6 +60,8 @@ public class UserControllerTest {
         User user = new User();
         user.setUsername("testUsername");
         user.setStatus(UserStatus.OFFLINE);
+        user.setBirthday(LocalDate.now());
+        user.setCreationDate(LocalDate.now());
 
         List<User> allUsers = Collections.singletonList(user);
 
@@ -78,7 +78,9 @@ public class UserControllerTest {
         mockMvc.perform(getRequest).andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$[0].username", is(user.getUsername())))
-                .andExpect(jsonPath("$[0].status", is(user.getStatus().toString())));
+                .andExpect(jsonPath("$[0].status", is(user.getStatus().toString())))
+                .andExpect(jsonPath("$[0].birthday", is(user.getBirthday().toString())))
+                .andExpect(jsonPath("$[0].creationDate", is(user.getCreationDate().toString())));
         Mockito.verify(authService).authUser(token);
     }
 
@@ -108,6 +110,7 @@ public class UserControllerTest {
         user.setUsername("testUsername");
         user.setToken("testToken");
         user.setStatus(UserStatus.ONLINE);
+        user.setCreationDate(LocalDate.now());
 
         UserPostDTO userPostDTO = new UserPostDTO();
         userPostDTO.setUsername("testUsername");
@@ -125,7 +128,8 @@ public class UserControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id", is(user.getId().intValue())))
                 .andExpect(jsonPath("$.username", is(user.getUsername())))
-                .andExpect(jsonPath("$.status", is(user.getStatus().toString())));
+                .andExpect(jsonPath("$.status", is(user.getStatus().toString())))
+                .andExpect(jsonPath("$.creationDate", is(user.getCreationDate().toString())));
     }
 
     @Test
@@ -157,7 +161,9 @@ public class UserControllerTest {
         User user = new User();
         user.setId(userid);
         user.setUsername("testUsername");
+        user.setToken("testToken");
         user.setStatus(UserStatus.ONLINE);
+        user.setCreationDate(LocalDate.now());
 
         Mockito.when(userService.getUserById(userid)).thenReturn(user);
 
@@ -171,7 +177,8 @@ public class UserControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(user.getId().intValue())))
                 .andExpect(jsonPath("$.username", is(user.getUsername())))
-                .andExpect(jsonPath("$.status", is(user.getStatus().toString())));
+                .andExpect(jsonPath("$.status", is(user.getStatus().toString())))
+                .andExpect(jsonPath("$.creationDate", is(user.getCreationDate().toString())));
 
         Mockito.verify(authService).authUser(token);
     }
@@ -230,6 +237,8 @@ public class UserControllerTest {
         user.setToken("testToken");
         user.setBirthday(date);
         user.setStatus(UserStatus.ONLINE);
+        user.setCreationDate(date);
+
 
         JSONObject obj = new JSONObject();
         obj.put("username", "testUsername");
@@ -248,7 +257,10 @@ public class UserControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id", is(user.getId().intValue())))
                 .andExpect(jsonPath("$.username", is(user.getUsername())))
-                .andExpect(jsonPath("$.birthday", is(user.getBirthday().toString())));
+                .andExpect(jsonPath("$.status", is(user.getStatus().toString())))
+                .andExpect(jsonPath("$.birthday", is(user.getBirthday().toString())))
+                .andExpect(jsonPath("$.creationDate", is(user.getCreationDate().toString())));
+
 
         Mockito.verify(authService).authUserForUserId(token, userid);
     }
