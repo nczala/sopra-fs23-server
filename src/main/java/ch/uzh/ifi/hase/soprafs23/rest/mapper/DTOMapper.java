@@ -1,5 +1,6 @@
 package ch.uzh.ifi.hase.soprafs23.rest.mapper;
 
+import ch.uzh.ifi.hase.soprafs23.entity.Lobby;
 import ch.uzh.ifi.hase.soprafs23.entity.Session;
 import ch.uzh.ifi.hase.soprafs23.entity.User;
 import ch.uzh.ifi.hase.soprafs23.rest.dto.*;
@@ -45,4 +46,11 @@ public interface DTOMapper {
     @Mapping(source = "username", target = "username")
     @Mapping(source = "userid", target = "userid")
     SessionGetDTO convertEntityToSessionGetDTO(Session session);
+
+    @Mapping(source = "id", target = "id")
+    LobbyGetDTO convertEntityToLobbyGetDTO(Lobby lobby);
+
+    @Mapping(source = "lobbyName", target = "lobbyName")
+    Lobby convertLobbyPostDTOtoEntity(LobbyPostDTO lobbyPostDTO);
+
 }

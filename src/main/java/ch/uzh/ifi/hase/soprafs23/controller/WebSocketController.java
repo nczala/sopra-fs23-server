@@ -10,14 +10,14 @@ import org.springframework.stereotype.Controller;
 @Controller
 public class WebSocketController {
 
-    @MessageMapping("/drawing-all")
-    @SendTo("/topic/drawing")
+    @MessageMapping("/drawing-all/{lobbyId}")
+    @SendTo("/topic/drawing/{lobbyId}")
     public DrawingMessageDTO sendToAll(@Payload DrawingMessageDTO message) {
         return message;
     }
 
-    @MessageMapping("/drawing-clear")
-    @SendTo("/topic/clear")
+    @MessageMapping("/drawing-clear/{lobbyId}")
+    @SendTo("/topic/clear/{lobbyId}")
     public ClearMessageDTO clearDrawing(@Payload ClearMessageDTO message) {
         return message;
     }
