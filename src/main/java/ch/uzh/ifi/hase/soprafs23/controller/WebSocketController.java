@@ -21,32 +21,34 @@ public class WebSocketController {
     @Autowired
     private WebSocketConnectListener webSocketConnectListener;
 
-    @MessageMapping("/drawing-all/{lobbyId}")
-    @SendTo("/topic/drawing/{lobbyId}")
+    private final String WEBSOCKET_PREFIX = "/topic";
+
+    @MessageMapping("/lobbies/{lobbyId}/drawing-all")
+    @SendTo(WEBSOCKET_PREFIX + "/lobbies/{lobbyId}/drawing-all")
     public DrawingMessageDTO sendToAll(@Payload DrawingMessageDTO message) {
         return message;
     }
 
-    @MessageMapping("/drawing-clear/{lobbyId}")
-    @SendTo("/topic/clear/{lobbyId}")
+    @MessageMapping("/lobbies/{lobbyId}/drawing-clear")
+    @SendTo(WEBSOCKET_PREFIX + "/lobbies/{lobbyId}/drawing-clear")
     public ClearMessageDTO clearDrawing(@Payload ClearMessageDTO message) {
         return message;
     }
 
     @MessageMapping("/lobbies/{lobbyId}/user-join")
-    @SendTo("/topic/lobbies/{lobbyId}/users")
+    @SendTo(WEBSOCKET_PREFIX + "/lobbies/{lobbyId}/users")
     public UserJoinGameDTO sendUserList(@Payload UserJoinGameDTO message, @DestinationVariable  Integer lobbyId) {
         return message;
     }
 
     @MessageMapping("/lobbies/{lobbyId}/user-leave")
-    @SendTo("/topic/lobbies/{lobbyId}/users")
+    @SendTo(WEBSOCKET_PREFIX + "/lobbies/{lobbyId}/users")
     public UserJoinGameDTO sendUserListAfterUserLeft(@Payload UserJoinGameDTO message) {
         return message;
     }
 
     @MessageMapping("/lobbies/{lobbyId}/start-game")
-    @SendTo("/topic/lobbies/{lobbyId}/start-game")
+    @SendTo(WEBSOCKET_PREFIX + "/lobbies/{lobbyId}/start-game")
     public UserJoinGameDTO startGame(@Payload UserJoinGameDTO message) {
         // set gameHasStarted
 
