@@ -7,6 +7,15 @@ public class DrawingMessageDTO {
     private float currX;
     private float currY;
     private String color;
+    private Integer lineWidth;
+
+    public Integer getLineWidth() {
+        return lineWidth;
+    }
+
+    public void setLineWidth(Integer lineWidth) {
+        this.lineWidth = lineWidth;
+    }
 
     public float getPrevX() {
         return prevX;
